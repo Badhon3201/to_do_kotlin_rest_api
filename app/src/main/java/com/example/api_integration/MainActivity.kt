@@ -1,9 +1,10 @@
 package com.example.api_integration
+
 import android.os.Bundle
 import android.util.Log
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.ui.AppBarConfiguration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -14,10 +15,19 @@ const val BASE_URL = "https://jsonplaceholder.typicode.com/"
 
 class MainActivity : AppCompatActivity() {
 
+    lateinit var myAdapter: MyAdapter
+    lateinit var rvMain: RecyclerView
+
+    //    lateinit var linearLayoutManager: LinearLayoutManager
+//    var recyclerViewUser: RecyclerView = findViewById(R.id.recyclerview_user)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
+
+        rvMain = findViewById(R.id.recyclerview_user)
+
+        rvMain.layoutManager = LinearLayoutManager(this)
 
         getMyData()
     }
@@ -38,20 +48,21 @@ class MainActivity : AppCompatActivity() {
             ) {
                 val responseBody = response.body()!!
 
-                val myStringBuilder = StringBuilder()
+                myAdapter = MyAdapter(baseContext, responseBody)
 
-                for (myData in responseBody) {
-                    myStringBuilder.append(myData.title)
-                    myStringBuilder.append("\n")
-                }
+                Log.d("Response=>",responseBody.toString())
 
-//                val textView = findViewById<TextView>(R.id.txtId)
-//                textView.text = myStringBuilder
+                rvMain.adapter = myAdapter
+
+                myAdapter.notifyDataSetChanged()
+
+//                recyclerViewUser.adapter = myAdapter
+
 
             }
 
             override fun onFailure(call: Call<List<MyDataItem>?>, t: Throwable) {
-                Log.d("MainActivity", "onFailure: "+t.message)
+                Log.d("MainActivity", "onFailure: " + t.message)
             }
         })
 
